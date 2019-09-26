@@ -32,7 +32,7 @@ COPY openemr-5.0.0/ /var/www/html/
 
 RUN apt-get -y update && apt-get -y install apt-utils libldap2-dev libpng-dev libxml2-dev libxslt1-dev \
     libzip-dev  libfreetype6-dev  libjpeg62-turbo-dev tar curl imagemagick mariadb-client-10.3 net-tools \
- && docker-php-ext-install calendar gd ldap mysqli pdo pdo_mysql soap sockets xsl zip \
+ && docker-php-ext-install calendar gd ldap mysqli pdo_mysql soap sockets xsl zip \
  && echo "Executing: chown -R www-data:www-data /var/www/html ..." \ 
  && chown -R www-data:www-data /var/www/html \
  && echo "Fixing something in vendor/adodb/adodb-php/adodb-xmlschema.inc.php ..." \
