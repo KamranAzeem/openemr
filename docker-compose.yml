@@ -1,0 +1,57 @@
+version: "3.1"
+services:
+  openemr:
+    # image: openemr/openemr:5.0.0
+    # image: local/openemr:5.0.2
+    build: openemr/
+    environment:
+      - TZ=Europe/Oslo
+      - MYSQL_HOST=db
+      - MYSQL_ROOT_PASS=mysql_root_password
+      - MYSQL_USER=user_openemr
+      - MYSQL_PASS=pass_openemr
+      - MYSQL_DATABASE=db_openemr
+      - OE_USER=admin
+      - OE_PASS=secretpassword
+    labels:
+      - traefik.frontend.rule=Host:openemr.wbitt.com
+      - traefik.port=80
+      - traefik.enable=true
+#    volumes:
+      # - /home/containers-data/openemr-sites:/var/www/localhost/htdocs/openemr/sites
+      # Using volume with this container image is important,
+      # because it has some stuff in sites directory, 
+      # which can only be copied to persistent location, if that location is a docker volume.
+      # it should not be a host mounted directory.
+#      - sitevolume:/var/www/localhost/htdocs/openemr/sites
+    depends_on:
+      - db
+    networks:
+      # This 'uses' the proxy network called 'services-network'
+      - services-network
+
+  db:
+    # image: mariadb:10.4
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql_root_password
+      - MYSQL_DATABASE=db_openemr
+      - MYSQL_USER=user_openemr
+      - MYSQL_PASSWORD=pass_openemr
+    volumes:
+      - ${PWD}/db/conf.d:/etc/mysql/conf.d
+      - /home/containers-data/openemr-db:/var/lib/mysql
+    networks:
+      - services-network
+
+  multitool:
+    image: praqma/network-multitool
+    networks:
+      - services-network
+
+volumes:
+  sitevolume: {}
+
+networks:
+  services-network:
+    external: true

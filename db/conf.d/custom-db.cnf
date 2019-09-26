@@ -1,0 +1,27 @@
+[mysqld]
+
+
+# https://mariadb.com/kb/en/library/innodb-system-variables/#innodb_page_size
+# This is needed to increase the page size, 
+# so in-turn we get an increase in row size. 
+# Default row size is 8k which is not enough for this silly openemr software.
+
+innodb_page_size=32k
+
+innodb_log_file_size=128M
+
+# https://mariadb.com/kb/en/library/setting-character-sets-and-collations/
+## character-set-client-handshake=utf8mb4
+# The following two are readonly server variables. They cannot be set a value.
+## character_set_database=utf8mb4
+## collation_database=utf8mb4_unicode_ci
+
+character_set_server=utf8mb4
+collation_server=utf8mb4_unicode_ci
+init-connect='SET NAMES utf8mb4'
+
+[client]
+default-character-set=utf8mb4
+
+[mysql]
+default-character-set=utf8mb4
