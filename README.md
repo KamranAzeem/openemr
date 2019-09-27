@@ -1,4 +1,4 @@
-# openemr - Dockerized by Kamran
+# openemr - Dockerized
 This repository contains code (and war stories - coming up) to setup openemr correctly on a linux system, using a docker container. 
 
 I believe this docker image for OpenEMR is much more efficient than the official openemr/openemr version available at docker hub. At least this is true for version 5.0.0 for now.
