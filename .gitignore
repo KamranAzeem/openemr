@@ -1,2 +1,4 @@
 *.env
 openemr-5.0.0*
+*.tar*
+tmp
