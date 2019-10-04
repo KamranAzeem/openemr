@@ -1,9 +1,7 @@
 version: "3.1"
 services:
   openemr:
-    # image: openemr/openemr:5.0.0
-    # image: local/openemr:5.0.2
-    build: openemr/
+    image: openemr/openemr:5.0.2
     environment:
       - TZ=Europe/Oslo
       - MYSQL_HOST=db
@@ -17,13 +15,13 @@ services:
       - traefik.frontend.rule=Host:openemr.wbitt.com
       - traefik.port=80
       - traefik.enable=true
-#    volumes:
+    volumes:
       # - /home/containers-data/openemr-sites:/var/www/localhost/htdocs/openemr/sites
       # Using volume with this container image is important,
       # because it has some stuff in sites directory, 
       # which can only be copied to persistent location, if that location is a docker volume.
       # it should not be a host mounted directory.
-#      - sitevolume:/var/www/localhost/htdocs/openemr/sites
+      - sitevolume:/var/www/localhost/htdocs/openemr/sites
     depends_on:
       - db
     networks:
@@ -31,7 +29,6 @@ services:
       - services-network
 
   db:
-    # image: mariadb:10.4
     image: mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=mysql_root_password
