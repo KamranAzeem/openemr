@@ -1,0 +1,65 @@
+version: "3.1"
+services:
+  openemr:
+    # The official image for 5.0.0 by openemr is horrible.
+    # So, I build my own.
+    # image: openemr/openemr:5.0.0
+    build: openemr/
+    environment:
+      - TZ=Europe/Oslo
+      - MYSQL_HOST=db
+      - MYSQL_ROOT_PASS=mysql_root_password
+      - MYSQL_USER=user_openemr
+      - MYSQL_PASS=pass_openemr
+      - MYSQL_DATABASE=db_openemr
+      - OE_USER=admin
+      - OE_PASS=secretpassword
+    labels:
+      - traefik.frontend.rule=Host:openemr.example.com
+      - traefik.port=80
+      - traefik.enable=true
+    volumes:
+      # Line below is Just a place holder
+      - ${PWD}/openemr/sqlconf.php:/tmp/sqlconf.php
+      # Temporary hack - mount the file with real db passwords, etc inside the container.
+      - ${PWD}/openemr/sqlconf.php:/var/www/html/sites/default/sqlconf.php
+      # The persistent location for some openemr site-specific files
+      # - /home/containers-data/openemr-sites:/var/www/localhost/htdocs/openemr/sites
+      # Using volume with this container image is important,
+      # because it has some stuff in sites directory, 
+      # which can only be copied to persistent location, if that location is a docker volume.
+      # it should not be a host mounted directory.
+#      - sitevolume:/var/www/localhost/htdocs/openemr/sites
+    depends_on:
+      - db
+    networks:
+      # This 'uses' the proxy network called 'services-network'
+      - services-network
+    ports:
+      - "80:80"
+
+  db:
+    # image: mariadb:10.4
+    # For now, mysql:5.7 is a safe choice - for backward compatibility
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=mysql_root_password
+      - MYSQL_DATABASE=db_openemr
+      - MYSQL_USER=user_openemr
+      - MYSQL_PASSWORD=pass_openemr
+    volumes:
+      - ${PWD}/db/conf.d:/etc/mysql/conf.d
+#      - /home/containers-data/openemr-db:/var/lib/mysql
+      - dbvolume:/var/lib/mysql
+    networks:
+      - services-network
+
+
+
+volumes:
+  sitevolume: {}
+  dbvolume: {}
+
+networks:
+  services-network:
+    external: true

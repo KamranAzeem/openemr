@@ -36,7 +36,7 @@ COPY openemr-5.0.0/ /var/www/html/
 
 
 RUN apt-get -y update && apt-get -y install apt-utils libldap2-dev libpng-dev libxml2-dev libxslt1-dev \
-    libzip-dev  libfreetype6-dev  libjpeg62-turbo-dev tar curl imagemagick mariadb-client-10.3 net-tools \
+    libzip-dev  libfreetype6-dev  libjpeg62-turbo-dev tar curl imagemagick mariadb-client net-tools \
  && a2enmod headers \
  && docker-php-ext-configure ldap   --with-libdir=lib/x86_64-linux-gnu/ \
  && docker-php-ext-install calendar gd ldap mysqli pdo_mysql soap sockets xsl zip \
