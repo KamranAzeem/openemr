@@ -1,8 +1,9 @@
 version: "3.1"
 services:
   openemr:
+    # The official image for 5.0.0 by openemr is horrible.
+    # So, I build my own.
     # image: openemr/openemr:5.0.0
-    # image: local/openemr:5.0.2
     build: openemr/
     environment:
       - TZ=Europe/Oslo
@@ -32,6 +33,7 @@ services:
 
   db:
     # image: mariadb:10.4
+    # For now, mysql:5.7 is a safe choice - for backward compatibility
     image: mysql:5.7
     environment:
       - MYSQL_ROOT_PASSWORD=mysql_root_password
