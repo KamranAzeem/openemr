@@ -5,15 +5,8 @@ services:
     # So, I build my own.
     # image: openemr/openemr:5.0.0
     build: openemr/
-    environment:
-      - TZ=Europe/Oslo
-      - MYSQL_HOST=db
-      - MYSQL_ROOT_PASS=mysql_root_password
-      - MYSQL_USER=user_openemr
-      - MYSQL_PASS=pass_openemr
-      - MYSQL_DATABASE=db_openemr
-      - OE_USER=admin
-      - OE_PASS=secretpassword
+    env_file:
+      - openemr/openemr.devpc.env
     labels:
       - traefik.frontend.rule=Host:openemr.example.com
       - traefik.port=80
@@ -26,35 +19,53 @@ services:
       # The persistent location for some openemr site-specific files
       # - /home/containers-data/openemr-sites:/var/www/localhost/htdocs/openemr/sites
       # Using volume with this container image is important,
-      # because it has some stuff in sites directory, 
-      # which can only be copied to persistent location, if that location is a docker volume.
-      # it should not be a host mounted directory.
-#      - sitevolume:/var/www/localhost/htdocs/openemr/sites
+      #   because it has some stuff in sites directory, 
+      #   which can only be copied to persistent location, if that location is a docker volume.
+      #   it should not be a host mounted directory.
+      # - sitevolume:/var/www/localhost/htdocs/openemr/sites
     depends_on:
       - db
     networks:
       # This 'uses' the proxy network called 'services-network'
       - services-network
-    ports:
-      - "80:80"
+#    ports:
+#      - "80:80"
 
   db:
     # image: mariadb:10.4
     # For now, mysql:5.7 is a safe choice - for backward compatibility
     image: mysql:5.7
-    environment:
-      - MYSQL_ROOT_PASSWORD=mysql_root_password
-      - MYSQL_DATABASE=db_openemr
-      - MYSQL_USER=user_openemr
-      - MYSQL_PASSWORD=pass_openemr
+    env_file:
+      - db/db.devpc.env
     volumes:
       - ${PWD}/db/conf.d:/etc/mysql/conf.d
-#      - /home/containers-data/openemr-db:/var/lib/mysql
+      # - /home/containers-data/openemr-db:/var/lib/mysql
       - dbvolume:/var/lib/mysql
     networks:
       - services-network
 
+  traefik:
+    image: traefik:1.7
+    labels:
+      # Traefik does not need a PathPrefix
+      - traefik.frontend.rule=Host:localhost.localdomain
+      - traefik.port=8080
+      - traefik.enable=true
 
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${PWD}/traefik/traefik.toml:/etc/traefik/traefik.toml
+      # The password file is generated with command:- 
+      #          "htpasswd -c -B traefik-dashboard-users.passwd  admin"
+      # - ${PWD}/traefik/traefik-dashboard-users.passwd:/traefik-dashboard-users.passwd
+      - ${PWD}/traefik/acme.json:/acme.json
+      # note: acme.json need to have 0600 permissions.
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      # This 'uses' the proxy network called 'services-network'
+      - services-network
 
 volumes:
   sitevolume: {}
