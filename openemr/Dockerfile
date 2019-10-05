@@ -30,6 +30,7 @@ COPY openemr-5.0.0/ /var/www/html/
 # Note: We do not need phpmyadmin to be part of the installation. 
 # So we remove it from the source-code directory.
 
+# The following hack/fix is require on php7.3 
 # && echo "Fixing something in vendor/adodb/adodb-php/adodb-xmlschema.inc.php ..." \
 # && sed -i '2199d' /var/www/html/vendor/adodb/adodb-php/adodb-xmlschema.inc.php \
 # && sed -i '160d'  /var/www/html/vendor/adodb/adodb-php/adodb-xmlschema.inc.php \
