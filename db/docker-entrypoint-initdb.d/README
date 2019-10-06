@@ -1,0 +1,1 @@
+THIs directory can have .sh and .sql files, which mysql will run/load at startup.
