@@ -46,6 +46,9 @@ default_socket_timeout = 60
 [CLI Server]
 cli_server.color = On
 [Date]
+; Defines the default timezone used by the date functions
+; http://php.net/date.timezone
+date.timezone = Europe/Oslo
 [filter]
 [iconv]
 [intl]

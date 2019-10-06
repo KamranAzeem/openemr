@@ -31,6 +31,7 @@ if [[ "${USE_EXISTING_SETUP}" == "Y" ]] || [[ "${USE_EXISTING_SETUP}" == "y" ] 
   fi
 
   if [[ ! -z "${MYSQL_HOST}" ]] && [[ ! -z "${MYSQL_DATABASE}" ]] && [[ ! -z "${MYSQL_USER}" ]] && [[ ! -z "${MYSQL_PASS}" ]]  ; then
+    echo "Modifying/Updating  ${PRODUCTION_SQLCONF_FILE} ..."
     sed -e "s/MYSQL_HOST/${MYSQL_HOST}/g" \
         -e "s/MYSQL_PORT/${MYSQL_PORT}/g" \
         -e "s/MYSQL_DATABASE/${MYSQL_DATABASE}/g" \
@@ -62,10 +63,10 @@ fi
 # Run any additional/user-provided scripts found in the /docker-entrypoint.d/ directory.
 #
 
-for SCRIPT_FILE in $(ls -1 /docker-entrypoint.d/*.sh); do
-  echo "Executing ${SCRIPT_FILE} ..."
-  source ${SCRIPT_FILE}
-done
+# for SCRIPT_FILE in $(ls -1 /docker-entrypoint.d/*.sh); do
+#   echo "Executing ${SCRIPT_FILE} ..."
+#   source ${SCRIPT_FILE}
+# done
 
 #
 #
@@ -76,5 +77,5 @@ done
 # As last step, execute the CMD. 
 # You may not find CMD defined in our custom openemr image,
 #   because it is already setup in the upstream container image: php:5.6-apache.
-exec ${CMD}
+exec "$@"
 

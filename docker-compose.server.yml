@@ -19,7 +19,15 @@ services:
       # In other words, setting USE_EXISTING_SETUP=Y will always safeguard your data. So it is a safe option to use.
       # If you are setting up a fresh openemr system, then set this to: N or n.
       - USE_EXISTING_SETUP=Y
+
+      # TZ (timezone):
+      # --------------
+      # This is the timezone used by the container OS.
+      # There is another setting in php.ini. 
+      # Please ensure that you setup correct/corresponding entry in php.ini file under [Date] section.
+      # The corresponding php.ini setting will be: date.timezone = Europe/Oslo
       - TZ=Europe/Oslo
+
     env_file:
       # Sensitive environment varibles go in the .env file.
       # Sensitive variables will not be part of the repository.
@@ -28,7 +36,7 @@ services:
       # The following env file contains information to connect to the database.
       - openemr/openemr.server.env
     labels:
-      - traefik.frontend.rule=Host:openemr.example.com
+      - traefik.frontend.rule=Host:openemr.wbitt.com
       - traefik.port=80
       - traefik.enable=true
     volumes:
@@ -51,13 +59,20 @@ services:
     env_file:
       - db/db.server.env
     volumes:
+      # Add any custom configuration files under conf.d directory in this image.
       - ${PWD}/db/conf.d:/etc/mysql/conf.d
+
       # If there are any .sql files inside the docker-entrypoint-initdb.d directory, they will be executed*.
       #   *-certain conditions apply. See MySQL documentation on DockerHub.
+      # If .sql file has lots of data, it may take several minutes before DB is fully available.
+      # Mysql will restart itself after loading the .sql files from docker-entrypoint-initdb.d directory.
+      # This means your web application will need to wait until then.
       - ${PWD}/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+
       # You can use a host directory for persistent storage, or a docker volume:
       - /home/containers-data/openemr-db:/var/lib/mysql
       # - dbvolume:/var/lib/mysql
+
     networks:
       - services-network
       - db-network

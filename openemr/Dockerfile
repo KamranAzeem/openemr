@@ -69,7 +69,10 @@ RUN echo "Executing: chown -R www-data:www-data /var/www/html ..." \
 # If you want to use the php.ini recommended by openemr, then copy in the file:
 COPY php.ini.openemr ${PHP_INI_DIR}/php.ini
 
+COPY sqlconf.php.template /tmp/sqlconf.php.template
+
 # Copy the custom entrypoint script inside the container
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["apache2-foreground"]
 
