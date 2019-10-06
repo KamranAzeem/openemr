@@ -4,3 +4,5 @@ openemr-5.0.0*
 *.tar*
 tmp
 support-files
+acme.json
+*.passwd
