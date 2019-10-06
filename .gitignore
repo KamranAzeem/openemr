@@ -1,4 +1,5 @@
 *.env
+*.sql
 openemr-5.0.0*
 *.tar*
 tmp
