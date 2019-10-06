@@ -1,0 +1,34 @@
+<?php
+//  OpenEMR
+//  MySQL Config
+
+$host	= 'MYSQL_HOST';
+$port	= 'MYSQL_PORT';
+$login	= 'MYSQL_USER';
+$pass	= 'MYSQL_PASS';
+$dbase	= 'MYSQL_DATABASE';
+
+//Added ability to disable
+//utf8 encoding - bm 05-2009
+global $disable_utf8_flag;
+$disable_utf8_flag = false;
+
+$sqlconf = array();
+global $sqlconf;
+$sqlconf["host"]= $host;
+$sqlconf["port"] = $port;
+$sqlconf["login"] = $login;
+$sqlconf["pass"] = $pass;
+$sqlconf["dbase"] = $dbase;
+//////////////////////////
+//////////////////////////
+//////////////////////////
+//////DO NOT TOUCH THIS///
+// set 'config = 0' for fresh setup - database will be intialized by the setup/wizard.
+// set 'config = 1' to prevent setup/wizard from running and corrupting existing database.
+$config = CONFIG_OPTION; //
+//////////////////////////
+//////////////////////////
+//////////////////////////
+?>
+

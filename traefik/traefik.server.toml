@@ -1,0 +1,60 @@
+# version 1.7
+defaultEntryPoints = ["http", "https"]
+logLevel = "INFO"
+
+[docker]
+  endpoint = "unix:///var/run/docker.sock"
+  exposedByDefault = false
+  domain = "example.com"
+  network = "services-network"
+
+
+# enabling api is not absolutely necessary, it is needed only if you need dashboard.
+[api]
+  dashboard = true
+  entrypoint = "dashboard"
+
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+  [entryPoints.dashboard]
+  address = ":8080"
+
+    # [entryPoints.dashboard.auth.basic]
+    # users = ["kamran:$2y$05$ENktYfdgdfgdfoghghjkGKUdgdfhdgfjghkjhkvcchfghfghf"]
+    # or:
+    # usersFile = "/traefik-dashboard-users.passwd"
+
+    # NOTE: The password file is generated with command:
+    #          "htpasswd -c -B traefik-dashboard-users.passwd  admin"
+
+
+# Note: Disable ACME for local testing
+[acme]
+
+email = "email@somedomain.com"
+storage = "/acme.json"
+
+
+# CA server to use.
+# Uncomment the 'caServer' line to use Let's Encrypt's staging server,
+#   leave commented to goto/use prod certificates.
+#
+# caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+entryPoint = "https"
+onHostRule = true
+
+  [acme.httpChallenge]
+  entryPoint = "http"
+
+

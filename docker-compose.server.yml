@@ -1,33 +1,48 @@
 version: "3.1"
 services:
   openemr:
-    # The official image for 5.0.0 by openemr is horrible.
-    # So, I build my own.
-    # image: openemr/openemr:5.0.0
+    # The official image for 5.0.0 by openemr is horrible (openemr/openemr:5.0.0).
+    # So, I built my own.
+    # image: kamranazeem/openemr:5.0.0
     build: openemr/
+    environment:
+      # Non-sensitive environment variables can be setup in this environment section.
+      #
+      # USE_EXISTING_SETUP:
+      # ------------------
+      # This option is used to retain whatever data is in the database,
+      #   in-case you are migrating a running system from one computer to another.
+      # This means that the setup wizard MUST NOT (and WILL NOT) run, 
+      #   and should simply connect to exising database, with data in it.
+      # In this case you need to provide DB connection details in the related .env file.
+      # docker-entrypoint.sh script will use the information in the .env file to populated sqlconf.php file.
+      # In other words, setting USE_EXISTING_SETUP=Y will always safeguard your data. So it is a safe option to use.
+      # If you are setting up a fresh openemr system, then set this to: N or n.
+      - USE_EXISTING_SETUP=Y
+      - TZ=Europe/Oslo
     env_file:
+      # Sensitive environment varibles go in the .env file.
+      # Sensitive variables will not be part of the repository.
+      # You need to manually create this file.
+      # See the accompnying openemr.env.example file.
+      # The following env file contains information to connect to the database.
       - openemr/openemr.server.env
     labels:
-      - traefik.frontend.rule=Host:openemr.wbitt.com
+      - traefik.frontend.rule=Host:openemr.example.com
       - traefik.port=80
       - traefik.enable=true
-    #volumes:
-      # Line below is Just a place holder
-      # - ${PWD}/openemr/sqlconf.php:/tmp/sqlconf.php
-      # Temporary hack - mount the file with real db passwords, etc inside the container.
-      # - ${PWD}/openemr/sqlconf.php:/var/www/html/sites/default/sqlconf.php
-      # The persistent location for some openemr site-specific files
-      # - /home/containers-data/openemr-sites:/var/www/localhost/htdocs/openemr/sites
-      # Using volume with this container image is important, - for now
-      #   because it has some stuff in sites directory, 
-      #   which can only be copied to persistent location, if that location is a docker volume.
-      #   it should not be a host mounted directory.
-      # - sitevolume:/var/www/localhost/htdocs/openemr/sites
+    volumes:
+      # If you want to do any customization to the image,
+      #   place those scripts under openemr/docker-entrypoint.d/ ,
+      #   and mount this location in your container.
+      # If there is no customizatio, you can skip the volume mount section altogether.
+      - ${PWD}/openemr/docker-entrypoint.d:/docker-entrypoint.d
     depends_on:
       - db
     networks:
       # This 'uses' the proxy network called 'services-network'
       - services-network
+      - db-network
 
   db:
     # image: mariadb:10.4
@@ -37,15 +52,23 @@ services:
       - db/db.server.env
     volumes:
       - ${PWD}/db/conf.d:/etc/mysql/conf.d
-      # - /home/containers-data/openemr-db:/var/lib/mysql
-      - dbvolume:/var/lib/mysql
+      # If there are any .sql files inside the docker-entrypoint-initdb.d directory, they will be executed*.
+      #   *-certain conditions apply. See MySQL documentation on DockerHub.
+      - ${PWD}/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      # You can use a host directory for persistent storage, or a docker volume:
+      - /home/containers-data/openemr-db:/var/lib/mysql
+      # - dbvolume:/var/lib/mysql
     networks:
       - services-network
+      - db-network
 
-volumes:
-  sitevolume: {}
-  dbvolume: {}
+  #################################################################################
+  # This docker-compose file does not define traefik reverse proxy inside it, 
+  #   because, on the server there is a separate treafik instance running already.
+  #################################################################################
+
 
 networks:
   services-network:
     external: true
+  db-network:
