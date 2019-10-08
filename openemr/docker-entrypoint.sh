@@ -72,7 +72,7 @@ echo
 
 # Or:
 
-find /docker-entrypoint.d  -name "*.sh*" -exec  '{}' ';'
+find /docker-entrypoint.d  -name "*.sh*"  -exec echo "Executing script: " '{}' ';'   -exec  '{}' ';'
 
 #
 #
