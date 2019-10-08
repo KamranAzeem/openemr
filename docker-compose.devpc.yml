@@ -18,7 +18,7 @@ services:
       # docker-entrypoint.sh script will use the information in the .env file to populated sqlconf.php file.
       # In other words, setting USE_EXISTING_SETUP=Y will always safeguard your data. So it is a safe option to use.
       # If you are setting up a fresh openemr system, then set this to: N or n.
-      - USE_EXISTING_SETUP=Y
+      - USE_EXISTING_SETUP=N
       - TZ=Europe/Oslo
     env_file:
       # Sensitive environment varibles go in the .env file.
@@ -35,14 +35,10 @@ services:
       # If you want to do any customization to the image, 
       #   place those scripts under openemr/docker-entrypoint.d/ ,
       #   and mount this location in your container. 
-      # If there is no customizatio, you can skip the volume mount section altogether.
+      # If there is no customization, you can skip this volume mount section altogether.
       - ${PWD}/openemr/docker-entrypoint.d:/docker-entrypoint.d
-
     depends_on:
       - db
-    networks:
-      # This 'uses' the proxy network called 'services-network'
-      - services-network
 
   db:
     # image: mariadb:10.4
@@ -55,11 +51,14 @@ services:
       # If there are any .sql files inside the docker-entrypoint-initdb.d directory, they will be executed*.
       #   *-certain conditions apply. See MySQL documentation on DockerHub.
       - ${PWD}/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      # If you skip both host volume and docker volume, 
+      #   the data will exist in the container only during it's lifetime
       # You can use a host directory for persistent storage, or a docker volume:
       # - /home/containers-data/openemr-db:/var/lib/mysql
-      - dbvolume:/var/lib/mysql
-    networks:
-      - services-network
+      # You can use a docker volume for persistent storage on the host.
+      # See the last part of this file to enable creation of this volume.
+      # - dbvolume:/var/lib/mysql
+      
 
   traefik:
     image: traefik:1.7
@@ -68,20 +67,13 @@ services:
       - traefik.frontend.rule=Host:traefik.example.com
       - traefik.port=8080
       - traefik.enable=true
-
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${PWD}/traefik/traefik.devpc.toml:/etc/traefik/traefik.toml
     ports:
       - 80:80
       - 443:443
-    networks:
-      # This 'uses' the proxy network called 'services-network'
-      - services-network
 
-volumes:
-  dbvolume: {}
+# volumes:
+#   dbvolume: {}
 
-networks:
-  services-network:
-    external: true
