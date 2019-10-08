@@ -21,8 +21,8 @@ logLevel = "INFO"
 # Remember, that Traefik will issue self signed certificates if you are not using ACME.
 # That should be alright, as you are running this on your local computer anyway.
 
-#    [entryPoints.http.redirect]
-#    entryPoint = "https"
+  [entryPoints.http.redirect]
+  entryPoint = "https"
 
   [entryPoints.https]
   address = ":443"
